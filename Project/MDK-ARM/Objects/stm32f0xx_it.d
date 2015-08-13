@@ -34,4 +34,5 @@
 .\objects\stm32f0xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\stm32f0xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 .\objects\stm32f0xx_it.o: ..\..\User\inc\bsp_usart.h
+.\objects\stm32f0xx_it.o: ..\..\User\inc\m100_sdk.h
 .\objects\stm32f0xx_it.o: ..\..\User\stm32f0xx_it.h

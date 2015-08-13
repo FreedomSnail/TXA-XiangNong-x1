@@ -3,6 +3,7 @@
 ".\objects\bsp.o"
 ".\objects\main.o"
 ".\objects\stm32f0xx_it.o"
+".\objects\m100_sdk.o"
 ".\objects\stm32f0xx_adc.o"
 ".\objects\stm32f0xx_cec.o"
 ".\objects\stm32f0xx_comp.o"

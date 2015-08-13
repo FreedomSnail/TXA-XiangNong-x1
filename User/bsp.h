@@ -45,6 +45,8 @@
 //#include "bsp_ks103.h"
 //#include "bsp_oled12864.h"
 #include "bsp_usart.h"
+#include "m100_sdk.h"
+
 #define 	SYS_TICKS_PER_SEC       100 
 #define countof(a) (sizeof(a) / sizeof(*(a)))//计算数组内的成员个数
 

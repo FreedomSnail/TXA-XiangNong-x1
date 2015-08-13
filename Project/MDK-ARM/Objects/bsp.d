@@ -34,3 +34,4 @@
 .\objects\bsp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\bsp.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 .\objects\bsp.o: ..\..\User\inc\bsp_usart.h
+.\objects\bsp.o: ..\..\User\inc\m100_sdk.h
