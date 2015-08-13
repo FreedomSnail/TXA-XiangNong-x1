@@ -1,0 +1,91 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.15
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: lz Microsoft, Microsoft, LIC=TIVPC-7H9E2-ARGXW-Q0N14-6ZJPV-KGW1G
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Standard  Version: 5.15.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.05 update 2 (build 169)
+Assembler:       Armasm.exe V5.05 update 2 (build 169)
+Linker/Locator:  ArmLink.exe V5.05 update 2 (build 169)
+Library Manager: ArmAr.exe V5.05 update 2 (build 169)
+Hex Converter:   FromElf.exe V5.05 update 2 (build 169)
+CPU DLL:         SARMCM3.DLL V5.15.0
+Dialog DLL:      DARMCM1.DLL V1.12.0.0
+Target DLL:      UL2CM3.DLL V1.155.8.0
+Dialog DLL:      TARMCM1.DLL V1.9.0.0
+ 
+<h2>Project:</h2>
+D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\Stm32f0x.uvprojx
+Project File Date:  08/04/2015
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.05 update 2 (build 169)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Build target 'TXA'
+compiling main.c...
+compiling stm32f0xx_dac.c...
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(151): warning:  #223-D: function "RCC_APB1PeriphResetCmd" declared implicitly
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_DAC, ENABLE);
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(151): error:  #20: identifier "RCC_APB1Periph_DAC" is undefined
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_DAC, ENABLE);
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(171): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(222): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(249): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(279): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_ALIGN(DAC_Align));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(301): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(341): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(389): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(422): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(453): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(478): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c(512): warning:  #223-D: function "assert_param" declared implicitly
+    assert_param(IS_DAC_CHANNEL(DAC_Channel));
+..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_dac.c: 12 warnings, 1 error
+".\Objects\Stm32f0x.axf" - 1 Error(s), 12 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.3.0.pack
+                ARM::CMSIS:CORE:4.1.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 4.1.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F0xx_DFP.1.4.0.pack
+                Keil::Device:Startup:1.5.0
+                STMicroelectronics STM32F0 Series Device Support and Examples
+   * Component: Startup Version: 1.5.0
+
+<h2>Collection of Component include folders:</h2>
+  D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include
+  C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:4.1.0
+
+   * Component: Keil::Device:Startup:1.5.0
+      Source file:   Device\Source\ARM\startup_stm32f030.s
+      Source file:   Device\Source\system_stm32f0xx.c
+      Source file:   Device\Source\ARM\STM32F0xx_OPT.s
+Target not created.
+</pre>
+</body>
+</html>
