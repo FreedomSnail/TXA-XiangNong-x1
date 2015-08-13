@@ -36,7 +36,7 @@ int main(void)
 	u8 checksum=0;
 	// 局部变量，用于存从flash读到的电压值			 
 	__IO uint32_t ADC_ConvertedValueLocal[2]; 
-	// 123456
+	// 1234567890
 	u8 cnt=0;
 	u16 Amp;
 	u16 AmpSum = 0;
