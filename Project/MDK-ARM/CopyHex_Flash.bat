@@ -1,0 +1,1 @@
+copy Objects\XiangNong-x1.hex ..\XiangNong-x1(mdk).hex
