@@ -437,6 +437,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\stm32f0xx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>m100_sdk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\src\m100_sdk.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

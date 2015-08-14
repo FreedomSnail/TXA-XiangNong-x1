@@ -2008,6 +2008,9 @@
   <group>
     <name>User</name>
     <file>
+      <name>$PROJ_DIR$\..\..\User\src\m100_sdk.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\User\main.c</name>
     </file>
     <file>
