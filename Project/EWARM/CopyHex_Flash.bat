@@ -1,1 +1,1 @@
-copy Debug\Exe\STM32F0x.hex ..\XiangNong-x1(iar).hex
+copy Debug\Exe\STM32F0x.hex  ..\XiangNong-x1(iar).hex
