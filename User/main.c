@@ -28,8 +28,11 @@
 ** Return :
 ** Others :
 ** 
-************************************************************************************************/
+APP ID ：            1008902
+通讯密钥      818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9c
+级别   2
 
+************************************************************************************************/
 int main(void)
 {	
 	u8 i;
@@ -60,15 +63,14 @@ int main(void)
 			ADC_ConvertedValueLocal[0]= RegularConvData_Tab[0];//计算电流
 			ADC_ConvertedValueLocal[0] = ADC_ConvertedValueLocal[0]*3300/4096;
 			AmpSum += ADC_ConvertedValueLocal[0];
-		}
-		
+		}	
 	}
 	Device.AmpRef = AmpSum/10;
 	AmpSum = 0;
 	USART_Out(USART1,"v=%d\r\n",Device.AmpRef);
 	while(1){
 		if(TimeMs == 0) {
-			TimeMs = 10;
+			TimeMs = 100;
 			
 			ADC_ConvertedValueLocal[0]= RegularConvData_Tab[0];//计算电流
 			ADC_ConvertedValueLocal[0] = ADC_ConvertedValueLocal[0]*3300/4096;
@@ -116,8 +118,6 @@ int main(void)
 			}
 			
 			
-			
-
 			Str[19] = Device.liquidSpeed/100 + '0';
 			Str[20] = Device.liquidSpeed/10%10 + '0';
 			Str[21] = Device.liquidSpeed%10 + '0';
@@ -135,7 +135,9 @@ int main(void)
 				Str[24]=(checksum&0x0F)+'0';
 			}
 			USART_Out(USART1,Str);
+			
 			//USART_Out(USART1,"This is a test!\r\n");
 		}
 	}
 }
+
