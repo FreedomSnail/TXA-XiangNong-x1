@@ -314,7 +314,7 @@ void ADC1_DMA_Init(void)
   	/* Convert the ADC1 Vref	with 55.5 Cycles as sampling time */ 
   	ADC_ChannelConfig(ADC1, ADC_Channel_0  , ADC_SampleTime_55_5Cycles); 
 	ADC_ChannelConfig(ADC1, ADC_Channel_1  , ADC_SampleTime_55_5Cycles); 
-	//ADC_ChannelConfig(ADC1, ADC_Channel_2  , ADC_SampleTime_55_5Cycles); 
+	ADC_ChannelConfig(ADC1, ADC_Channel_2  , ADC_SampleTime_55_5Cycles); 
 	//	 ADC_VrefintCmd(ENABLE);
   
   	/* ADC Calibration */
@@ -392,6 +392,153 @@ void Liquid_Output(void)
 		Str[12]=(checksum&0x0F)+'A'-10;
 	} else {
 		Str[12]=(checksum&0x0F)+'0';
+	}
+	USART_Out(USART1,Str);
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 上电时获取测量电流值的基准比较值
+************************************************************************************************/
+u16 Get_Amp_Ref(void)
+{
+	u8 cnt;
+	u16 AmpSum = 0;
+	u32 ADC_ConvertedValue;
+	cnt = 0;
+	while(cnt<10) {
+		if(TimeMs == 0) {
+			TimeMs = 10;
+			cnt++;
+			ADC_ConvertedValue= RegularConvData_Tab[0];//计算电流
+			ADC_ConvertedValue = ADC_ConvertedValue*3300/4096;
+			AmpSum += ADC_ConvertedValue;
+		}	
+	}
+	return (u16)(AmpSum/10);
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 获取电流值
+************************************************************************************************/
+u16 Get_Amp_Val(void)
+{
+	u16 Amp;
+	u32 ADC_ConvertedValue;
+	ADC_ConvertedValue= RegularConvData_Tab[0];//计算电流
+	ADC_ConvertedValue = ADC_ConvertedValue*3300/4096;
+	#if 1 	// 5v供电
+	if(ADC_ConvertedValue<Device.AmpRef) {
+		Amp = 0;
+	} else if(ADC_ConvertedValue<(Device.AmpRef+997)) {	// (2500+150*13.3)/2=2247
+		ADC_ConvertedValue = (ADC_ConvertedValue-Device.AmpRef)*2;
+		Amp = ADC_ConvertedValue*10/133;
+	} else {
+		Amp = 150;
+	}
+	#else
+	if(ADC_ConvertedValueLocal[0]<1650) {
+		Amp = 0;
+	} else if(ADC_ConvertedValueLocal[0]<2967) {	// 1650+150*3.3/5*13.3
+		ADC_ConvertedValueLocal[0] -= 1650;
+		Amp = ADC_ConvertedValueLocal[0]*500/(33*133);
+	} else {
+		Amp = 150;
+	}
+	#endif
+	return Amp;
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 获取12S电压值
+************************************************************************************************/
+u16 Get_12S_Val(void)
+{
+	u32 ADC_ConvertedValue;
+	ADC_ConvertedValue= RegularConvData_Tab[1];//计算12s电压
+	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
+	return (u16)ADC_ConvertedValue;
+
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 获取12S电压值
+************************************************************************************************/
+u16 Get_6S_Val(void)
+{
+	u32 ADC_ConvertedValue;
+	ADC_ConvertedValue= RegularConvData_Tab[2];//计算6s电压
+	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
+	return (u16)ADC_ConvertedValue;
+
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+**
+************************************************************************************************/
+void Send_Msg_2_M100(void)
+{
+	u8 i;
+	u8 checksum=0;
+	u8 Str[]="$LIQUID,24.0V,24.0V,100A,000*xx\r\n";
+
+	Str[8] = Device.V12s/100 + '0';
+	Str[9] = Device.V12s/10%10 + '0';
+	Str[10] = Device.V12s%10 + '0';
+
+	Str[13] = Device.V6s/100 + '0';
+	Str[14] = Device.V6s/10%10 + '0';
+	Str[15] = Device.V6s%10 + '0';
+
+	Str[18] = Device.Amp/100 + '0';
+	Str[19] = Device.Amp/10%10 + '0';
+	Str[20] = Device.Amp%10 + '0';
+	
+	Str[23] = Device.LiquidSpeed/100 + '0';
+	Str[24] = Device.LiquidSpeed/10%10 + '0';
+	Str[25] = Device.LiquidSpeed%10 + '0';
+	
+	for(i=1;i<=25;i++) {// $和*号不参加校验
+		checksum^=Str[i];
+	}
+	if(((checksum&0xF0)>>4)>9) {	// A~F		
+		Str[27]=((checksum&0xF0)>>4)+'A'-10;
+	} else {						// 0~9
+		Str[27]=((checksum&0xF0)>>4)+'0';
+	}		
+	if((checksum&0x0F)>9) {
+		Str[28]=(checksum&0x0F)+'A'-10;
+	} else {
+		Str[28]=(checksum&0x0F)+'0';
 	}
 	USART_Out(USART1,Str);
 }

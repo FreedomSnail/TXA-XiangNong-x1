@@ -170,9 +170,9 @@ void USART1_IRQHandler(void)
 						}
 						if(checksumCal == checksumRecv) {	//Ð£Ñéok
 							if((Uart1.RxDataBuf[0]=='P')&&(Uart1.RxDataBuf[1]=='U')&&(Uart1.RxDataBuf[2]=='M')&&(Uart1.RxDataBuf[3]=='P')){
-								Device.liquidSpeed = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(Device.liquidSpeed<100) {
-									TIM_SetCompare1(TIM3,Device.liquidSpeed*10);
+								Device.LiquidSpeed = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
+								if(Device.LiquidSpeed<100) {
+									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
 								} else {
 									TIM_SetCompare1(TIM3,1030);
 								}

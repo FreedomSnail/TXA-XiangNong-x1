@@ -53,24 +53,31 @@
 
 
 typedef struct {
-	u16	liquidSpeed;
-	u16 AmpRef;		//基准电流值
+	u16 AmpRef;			//基准电流值
+	//u16 AmpInstant;	//电流瞬间值
+	//u16 AmpEverage;	//电流平均值
+	u16 Amp;
+	u16 V12s;
+	u16 V6s;
+	u16	LiquidSpeed;
 }
 Device_TYPEDEF;
 
 extern Device_TYPEDEF Device;
 
 
-
-
 extern u32	TimeMs;
 extern __IO uint16_t RegularConvData_Tab[];
 
 void  SysTickInit(void);
-
 void TIM3_Config(void);
 void ADC1_DMA_Init(void);
 void PUMP_Output(void);
+u16 Get_Amp_Ref(void);
+u16 Get_Amp_Val(void);
+u16 Get_12S_Val(void);
+u16 Get_6S_Val(void);
+void Send_Msg_2_M100(void);
 
 
 #endif
