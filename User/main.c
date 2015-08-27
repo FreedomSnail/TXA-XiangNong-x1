@@ -38,13 +38,13 @@ int main(void)
 	u8 i;
 	u8 checksum=0;
 	// 局部变量，用于存从flash读到的电压值			 
-	__IO uint32_t ADC_ConvertedValueLocal[2]; 
-	// 1234567890
+	__IO uint32_t ADC_ConvertedValueLocal[3]; 
 	u8 cnt=0;
 	u16 Amp;
 	u16 AmpSum = 0;
 	u16 Vsum = 0;
-	u8 Str[]="$LIQUID,48.0V,100A,000*xx\r\n";
+	//u8 Str[]="$LIQUID,24.0V,24.0V,100A,000*xx\r\n";
+	u8 Str[]="$LIQUID,24.0V,100A,000*xx\r\n";
 	SysTickInit();
 	USART_Config(USART1,9600);
 	TIM3_Config();
@@ -94,9 +94,9 @@ int main(void)
 				Amp = 150;
 			}
 			#endif
-			ADC_ConvertedValueLocal[1]= RegularConvData_Tab[1];//计算电压
+			ADC_ConvertedValueLocal[1]= RegularConvData_Tab[1];//计算12s电压
 			ADC_ConvertedValueLocal[1] = ADC_ConvertedValueLocal[1]*33*18/4096;
-
+			
 			cnt++;
 			if(cnt<11) {
 				AmpSum += Amp;

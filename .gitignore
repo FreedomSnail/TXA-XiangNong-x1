@@ -28,6 +28,17 @@
 *.x86_64
 *.hex
 
+# SourceInsight
+*.IAB
+*.IAD
+*.IMB
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.SearchResults
+*.WK3
 
 # Debug files
 *.dSYM/

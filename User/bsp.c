@@ -238,7 +238,7 @@ void ADC_Config(void)
 	
 }
 #define ADC1_DR_Address                0x40012440
-__IO uint16_t RegularConvData_Tab[2];
+__IO uint16_t RegularConvData_Tab[3];
 /************************************************************************************************
 ** Function name :			
 ** Description :
@@ -264,8 +264,8 @@ void ADC1_DMA_Init(void)
   	/* DMA1 clock enable */
   	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
 
-  	/* Configure PA.01  as analog input */
-  	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1;
+  	/* Configure PA.0,1,2  as analog input */
+  	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2;
   	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL ;
   	GPIO_Init(GPIOA, &GPIO_InitStruct);				// PC1,输入时不用设置速率
@@ -314,7 +314,7 @@ void ADC1_DMA_Init(void)
   	/* Convert the ADC1 Vref	with 55.5 Cycles as sampling time */ 
   	ADC_ChannelConfig(ADC1, ADC_Channel_0  , ADC_SampleTime_55_5Cycles); 
 	ADC_ChannelConfig(ADC1, ADC_Channel_1  , ADC_SampleTime_55_5Cycles); 
-
+	//ADC_ChannelConfig(ADC1, ADC_Channel_2  , ADC_SampleTime_55_5Cycles); 
 	//	 ADC_VrefintCmd(ENABLE);
   
   	/* ADC Calibration */
