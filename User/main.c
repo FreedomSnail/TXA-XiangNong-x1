@@ -60,6 +60,7 @@ int main(void)
 	
 	SysTickInit();
 	USART_Config(USART1,9600);
+	TIM1_Config();
 	TIM3_Config();
 	ADC1_DMA_Init();
 	USART_Out(USART1,"Power On!\r\n");

@@ -72,7 +72,7 @@ void  SysTickInit(void)
 ** Output :
 ** Return :
 ** Others :
-** 
+** 输出范围0.9ms~2.1ms
 ************************************************************************************************/
 void TIM1_Config(void)
 {
@@ -80,23 +80,24 @@ void TIM1_Config(void)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 
-	/* TIM3 clock enable */
+	/* TIM1 clock enable */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 
-	/* GPIOB clock enable */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+	/* GPIOA clock enable */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
-	/* TIM1 chennel2 configuration : PB0 */
-	GPIO_InitStructure.GPIO_Pin	= GPIO_Pin_0;
+	/* TIM1 chennel2 ,TIM1 chennel3 configuration : PA9,PA10 */
+	GPIO_InitStructure.GPIO_Pin	= GPIO_Pin_9|GPIO_Pin_10;
 	GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP; 
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Connect TIM pin to AF1 */
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_2);
-#if 1
+	/* Connect TIM pin to AF2 */
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
+#if 0
 	/* Enable the TIM2 global Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = TIM1_BRK_UP_TRG_COM_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
@@ -104,20 +105,24 @@ void TIM1_Config(void)
 	NVIC_Init(&NVIC_InitStructure);
 #endif
 
-	//TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	
  	//TIM_OCInitStructure.TIM_
 	TIM_OCInitStructure.TIM_Pulse = 1000;
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	//TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
-	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputState_Enable;
+	
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	//TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
+	//TIM_OCInitStructure.TIM_OutputNState = TIM_OutputState_Enable;
+	TIM_PrescalerConfig(TIM1,320-1,TIM_PSCReloadMode_Immediate);
+	TIM_OC2Init(TIM1,&TIM_OCInitStructure);
 	TIM_OC3Init(TIM1,&TIM_OCInitStructure);
-	
-	TIM_SetAutoreload( TIM1,1000);	//PWM总周期时间设置
-	
-	TIM_SetCompare3(TIM1,500);		//PWM高电平时间设置
+	TIM_CtrlPWMOutputs(TIM1,ENABLE);
+	TIM_SetAutoreload(TIM1,2000);	//PWM总周期时间设置
+	TIM_SetCompare2(TIM1,90);		//PWM高电平时间设置 ,x10us
+	TIM_SetCompare3(TIM1,90);		//PWM高电平时间设置 ,x10us
   /* Enable the CC2 Interrupt Request */
-	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+	//TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM1, ENABLE);
 }
 /************************************************************************************************
@@ -140,18 +145,18 @@ void TIM3_Config(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
 	/* GPIOB clock enable */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
-	/* TIM3 chennel1 configuration : PB4 */
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_4;
+	/* TIM3 chennel1 configuration : PA6 */
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP; 
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* Connect TIM pin to AF1 */
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_1);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_1);
 
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
  	//TIM_OCInitStructure.TIM_
@@ -162,10 +167,11 @@ void TIM3_Config(void)
 	TIM_OC1Init(TIM3,&TIM_OCInitStructure);
 	TIM_SetAutoreload(TIM3,1000);	//PWM总周期时间设置
 	
-	TIM_SetCompare1(TIM3,0);		//PWM高电平时间设置
+	TIM_SetCompare1(TIM3,500);		//PWM高电平时间设置
   	/* Enable the CC2 Interrupt Request */
   	//TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
   	TIM_Cmd(TIM3, ENABLE);	
+	
 	#if 0
 	/* Enable the TIM3 global Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
@@ -238,7 +244,7 @@ void ADC_Config(void)
 	
 }
 #define ADC1_DR_Address                0x40012440
-__IO uint16_t RegularConvData_Tab[3];
+__IO uint16_t RegularConvData_Tab[6];
 /************************************************************************************************
 ** Function name :			
 ** Description :
@@ -277,7 +283,7 @@ void ADC1_DMA_Init(void)
 	DMA_InitStruct.DMA_PeripheralBaseAddr = (uint32_t)&ADC1->DR;
   	DMA_InitStruct.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
   	DMA_InitStruct.DMA_DIR = DMA_DIR_PeripheralSRC;
-  	DMA_InitStruct.DMA_BufferSize =4;
+  	DMA_InitStruct.DMA_BufferSize =3;
   	DMA_InitStruct.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
   	DMA_InitStruct.DMA_MemoryInc = DMA_MemoryInc_Enable;
   	DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
@@ -472,7 +478,7 @@ u16 Get_Amp_Val(void)
 u16 Get_12S_Val(void)
 {
 	u32 ADC_ConvertedValue;
-	ADC_ConvertedValue= RegularConvData_Tab[1];//计算12s电压
+	ADC_ConvertedValue= RegularConvData_Tab[2];//计算12s电压
 	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
 	return (u16)ADC_ConvertedValue;
 
@@ -490,7 +496,7 @@ u16 Get_12S_Val(void)
 u16 Get_6S_Val(void)
 {
 	u32 ADC_ConvertedValue;
-	ADC_ConvertedValue= RegularConvData_Tab[2];//计算6s电压
+	ADC_ConvertedValue= RegularConvData_Tab[1];//计算6s电压
 	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
 	return (u16)ADC_ConvertedValue;
 
@@ -513,32 +519,32 @@ void Send_Msg_2_M100(void)
 
 	Str[8] = Device.V12s/100 + '0';
 	Str[9] = Device.V12s/10%10 + '0';
-	Str[10] = Device.V12s%10 + '0';
+	Str[11] = Device.V12s%10 + '0';
 
-	Str[13] = Device.V6s/100 + '0';
-	Str[14] = Device.V6s/10%10 + '0';
-	Str[15] = Device.V6s%10 + '0';
+	Str[14] = Device.V6s/100 + '0';
+	Str[15] = Device.V6s/10%10 + '0';
+	Str[17] = Device.V6s%10 + '0';
 
-	Str[18] = Device.Amp/100 + '0';
-	Str[19] = Device.Amp/10%10 + '0';
-	Str[20] = Device.Amp%10 + '0';
+	Str[20] = Device.Amp/100 + '0';
+	Str[21] = Device.Amp/10%10 + '0';
+	Str[22] = Device.Amp%10 + '0';
 	
-	Str[23] = Device.LiquidSpeed/100 + '0';
-	Str[24] = Device.LiquidSpeed/10%10 + '0';
-	Str[25] = Device.LiquidSpeed%10 + '0';
+	Str[25] = Device.LiquidSpeed/100 + '0';
+	Str[26] = Device.LiquidSpeed/10%10 + '0';
+	Str[27] = Device.LiquidSpeed%10 + '0';
 	
-	for(i=1;i<=25;i++) {// $和*号不参加校验
+	for(i=1;i<=27;i++) {// $和*号不参加校验
 		checksum^=Str[i];
 	}
 	if(((checksum&0xF0)>>4)>9) {	// A~F		
-		Str[27]=((checksum&0xF0)>>4)+'A'-10;
+		Str[29]=((checksum&0xF0)>>4)+'A'-10;
 	} else {						// 0~9
-		Str[27]=((checksum&0xF0)>>4)+'0';
+		Str[29]=((checksum&0xF0)>>4)+'0';
 	}		
 	if((checksum&0x0F)>9) {
-		Str[28]=(checksum&0x0F)+'A'-10;
+		Str[30]=(checksum&0x0F)+'A'-10;
 	} else {
-		Str[28]=(checksum&0x0F)+'0';
+		Str[30]=(checksum&0x0F)+'0';
 	}
 	USART_Out(USART1,Str);
 }

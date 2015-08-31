@@ -60,6 +60,7 @@ typedef struct {
 	u16 V12s;
 	u16 V6s;
 	u16	LiquidSpeed;
+	u16 Atomizer;
 }
 Device_TYPEDEF;
 
@@ -70,6 +71,7 @@ extern u32	TimeMs;
 extern __IO uint16_t RegularConvData_Tab[];
 
 void  SysTickInit(void);
+void TIM1_Config(void);
 void TIM3_Config(void);
 void ADC1_DMA_Init(void);
 void PUMP_Output(void);
