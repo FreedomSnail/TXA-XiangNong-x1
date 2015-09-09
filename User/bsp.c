@@ -515,7 +515,7 @@ void Send_Msg_2_M100(void)
 {
 	u8 i;
 	u8 checksum=0;
-	u8 Str[]="$LIQUID,24.0V,24.0V,100A,000*xx\r\n";
+	u8 Str[]="$LIQUID,24.0V,24.0V,100A,000,000*xx\r\n";// 6S电压，6s电压，总电流，水泵开合程度(pwm占空比)，雾化器开合程度
 
 	Str[8] = Device.V12s/100 + '0';
 	Str[9] = Device.V12s/10%10 + '0';
@@ -532,20 +532,60 @@ void Send_Msg_2_M100(void)
 	Str[25] = Device.LiquidSpeed/100 + '0';
 	Str[26] = Device.LiquidSpeed/10%10 + '0';
 	Str[27] = Device.LiquidSpeed%10 + '0';
+
+	Str[29] = Device.Atomizer/100 + '0';
+	Str[30] = Device.Atomizer/10%10 + '0';
+	Str[31] = Device.Atomizer%10 + '0';
 	
-	for(i=1;i<=27;i++) {// $和*号不参加校验
+	for(i=1;i<=31;i++) {// $和*号不参加校验
 		checksum^=Str[i];
 	}
 	if(((checksum&0xF0)>>4)>9) {	// A~F		
-		Str[29]=((checksum&0xF0)>>4)+'A'-10;
+		Str[33]=((checksum&0xF0)>>4)+'A'-10;
 	} else {						// 0~9
-		Str[29]=((checksum&0xF0)>>4)+'0';
+		Str[33]=((checksum&0xF0)>>4)+'0';
 	}		
 	if((checksum&0x0F)>9) {
-		Str[30]=(checksum&0x0F)+'A'-10;
+		Str[34]=(checksum&0x0F)+'A'-10;
 	} else {
-		Str[30]=(checksum&0x0F)+'0';
+		Str[34]=(checksum&0x0F)+'0';
 	}
 	USART_Out(USART1,Str);
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 雾化器电调软启动
+************************************************************************************************/
+void Atomizer_Soft_Start(void)
+{
+	if(Device.AtomizerCurPWM<Device.AtomizerTargetPWM) {
+		if(Device.AtomizerCurPWM<110) {
+			Device.AtomizerCurPWM = 110;
+		} else if(Device.AtomizerCurPWM<130) {
+			Device.AtomizerCurPWM ++;
+		} else {
+			Device.AtomizerCurPWM += 2;
+		}
+		TIM_SetCompare2(TIM1,Device.AtomizerCurPWM);
+		TIM_SetCompare3(TIM1,Device.AtomizerCurPWM);
+		//while(!((USART1->ISR)&(1<<7)));//等待发送完
+		//USART1->TDR= '+';
+		
+		//USART_Out(USART1,"+");
+	} else if(Device.AtomizerCurPWM>Device.AtomizerTargetPWM){
+		Device.AtomizerCurPWM -= Device.AtomizerTargetPWM;
+		TIM_SetCompare2(TIM1,Device.AtomizerCurPWM);
+		TIM_SetCompare3(TIM1,Device.AtomizerCurPWM);
+		//while(!((USART1->ISR)&(1<<7)));//等待发送完
+		//USART1->TDR= '-';
+		
+		//USART_Out(USART1,"-");
+	}
 }
 

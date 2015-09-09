@@ -2,11 +2,13 @@
 #define _BSP_H_
 
 #include "stm32f0xx.h"
-
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include  <stdlib.h>
 #include  <stdarg.h>
+
+
 
 
 #ifndef TRUE
@@ -61,6 +63,8 @@ typedef struct {
 	u16 V6s;
 	u16	LiquidSpeed;
 	u16 Atomizer;
+	u16 AtomizerCurPWM;
+	u16 AtomizerTargetPWM;
 }
 Device_TYPEDEF;
 
@@ -80,7 +84,7 @@ u16 Get_Amp_Val(void);
 u16 Get_12S_Val(void);
 u16 Get_6S_Val(void);
 void Send_Msg_2_M100(void);
-
+void Atomizer_Soft_Start(void);
 
 #endif
 

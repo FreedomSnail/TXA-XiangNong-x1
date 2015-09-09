@@ -223,4 +223,24 @@ char *itoa(long value, char *string, int radix)
     return string;
 
 } 
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 
+************************************************************************************************/
+void USART_Send_Buf(USART_TypeDef* USARTx, u8* buf, u16 len)
+{ 
+	if(len<1) {
+		return;
+	}
+	while(len--){
+		USART_SendData(USARTx, *buf++);
+		while(USART_GetFlagStatus(USARTx, USART_FLAG_TC)==RESET);
+	}
+}
 

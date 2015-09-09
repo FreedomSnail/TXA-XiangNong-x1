@@ -127,7 +127,68 @@ void SysTick_Handler(void)
 uint8_t count = 0;
 uint8_t is_initiated = 0;
 //$PUMP,100,**
-
+#if 1
+void USART1_IRQHandler(void)
+{
+	u8 Rev;
+	static u16 dataLen;
+  	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) { 	
+		Rev = USART_ReceiveData(USART1);
+		//while(!((USART1->ISR)&(1<<7)));//等待发送完
+		//USART1->TDR= Rev;
+		#if 1
+		switch(Uart1.PackageStatus) {
+			case RECV_IDLE:
+				if(Rev == _SDK_SOF) {
+					Uart1.RxIndex = 1;
+					Uart1.PackageStatus = RECV_COMMAND_SET;
+					memset(Uart1.RxDataBuf,0,RX_MAX_NUM);
+					Uart1.RxDataBuf[0] = _SDK_SOF;
+				}
+				break;
+			case RECV_COMMAND_SET:
+				Uart1.RxDataBuf[Uart1.RxIndex] = Rev;
+				if(Uart1.RxIndex == sizeof(SDKHeader)) {
+				//if(Uart1.RxIndex == 12) {
+					if(Rev == 0x02) {
+						//USART_Out(USART1,"*");
+						Uart1.PackageStatus = RECV_COMMAND_ID;
+					} else {
+						Uart1.PackageStatus = RECV_IDLE;
+					}
+				}
+				Uart1.RxIndex++;
+				break;
+			case RECV_COMMAND_ID:
+				Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
+				if(Rev == 0x02) {
+					dataLen = ((unsigned int)(0x03&&Uart1.RxDataBuf[2])<<8)+(unsigned int)Uart1.RxDataBuf[1];
+					Uart1.PackageStatus = RECV_WAIT_DONE;
+				} else {
+					Uart1.PackageStatus = RECV_IDLE;
+				}
+				break;
+			case RECV_WAIT_DONE:
+				if(Uart1.RxIndex<RX_MAX_NUM) {
+					Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
+					if(Uart1.RxIndex == dataLen) {
+						Uart1.RxFlag = 1;
+						//Pro_Receive_Interface();//一帧数据接收完成
+						//USART_Send_Buf(USART1,Uart1.RxDataBuf,dataLen);
+						//USART_Out(USART1,"!");
+						Uart1.PackageStatus = RECV_IDLE;
+					}
+				} else {//接收到的数据致使数组越界
+					Uart1.PackageStatus = RECV_IDLE;
+				}
+				break;
+			default:
+				break;
+		}
+		#endif
+	} 
+}
+#else
 void USART1_IRQHandler(void)
 {
 	uint8_t Rev;
@@ -135,6 +196,7 @@ void USART1_IRQHandler(void)
 	u8 parity1;
 	u8 parity2;
 	u8 i;
+	u16 temp;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	   //判断读寄存器是否非空
   	{	
     	Rev = USART_ReceiveData(USART1);
@@ -170,30 +232,59 @@ void USART1_IRQHandler(void)
 						}
 						if(checksumCal == checksumRecv) {	//校验ok
 							if((Uart1.RxDataBuf[0]=='P')&&(Uart1.RxDataBuf[1]=='U')&&(Uart1.RxDataBuf[2]=='M')&&(Uart1.RxDataBuf[3]=='P')){
-								Device.LiquidSpeed = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(Device.LiquidSpeed<100) {
+								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
+								if(temp<50) {	
+									Device.LiquidSpeed = 0;
 									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+									TIM_SetCompare2(TIM1,90);//关闭
+									TIM_SetCompare3(TIM1,90);
+								} else if(temp < 100) {
+									Device.LiquidSpeed = temp;
+									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+									TIM_SetCompare2(TIM1,210);//关闭
+									TIM_SetCompare3(TIM1,210);
 								} else {
 									TIM_SetCompare1(TIM3,1030);
+									TIM_SetCompare2(TIM1,210);//关闭
+									TIM_SetCompare3(TIM1,210);
 								}
 							} else if((Uart1.RxDataBuf[0]=='A')&&(Uart1.RxDataBuf[1]=='T')&&(Uart1.RxDataBuf[2]=='O')&&(Uart1.RxDataBuf[3]=='M')){
-								Device.Atomizer = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(Device.Atomizer<=120) {
-									Device.Atomizer += 90;	// x10us
-									TIM_SetCompare2(TIM1,Device.Atomizer);
-									TIM_SetCompare3(TIM1,Device.Atomizer);
+								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
+								if(temp<=100) {
+									Device.Atomizer = temp;
+									temp = temp*6/5 + 90; // x10us
+									TIM_SetCompare2(TIM1,temp);
+									TIM_SetCompare3(TIM1,temp);
 								}
 							}
-						} else {
-							if((Uart1.RxDataBuf[0]=='A')&&(Uart1.RxDataBuf[1]=='T')&&(Uart1.RxDataBuf[2]=='O')&&(Uart1.RxDataBuf[3]=='M')){
-								Device.Atomizer = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(Device.Atomizer<=120) {
-									Device.Atomizer += 90;	// x10us
-									TIM_SetCompare2(TIM1,Device.Atomizer);
-									TIM_SetCompare3(TIM1,Device.Atomizer);
+						} 
+						#if 1
+						else {
+							if((Uart1.RxDataBuf[0]=='P')&&(Uart1.RxDataBuf[1]=='U')&&(Uart1.RxDataBuf[2]=='M')&&(Uart1.RxDataBuf[3]=='P')){
+								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
+								while(!((USART1->ISR)&(1<<7)));//等待发送完
+								USART1->TDR= '*';
+								if(temp<50) {
+									Device.LiquidSpeed = 0;
+									Device.AtomizerTargetPWM = 90;
+									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+									//TIM_SetCompare2(TIM1,90);//关闭
+									//TIM_SetCompare3(TIM1,90);
+								} else if(temp < 100) {
+									Device.LiquidSpeed = temp;
+									Device.AtomizerTargetPWM = 210;
+									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+									//TIM_SetCompare2(TIM1,210);//关闭
+									//TIM_SetCompare3(TIM1,210);
+								} else {
+									Device.AtomizerTargetPWM = 210;
+									TIM_SetCompare1(TIM3,1030);
+									//TIM_SetCompare2(TIM1,210);//关闭
+									//TIM_SetCompare3(TIM1,210);
 								}
 							}
 						}
+						#endif
 						Uart1.PackageStatus = RECV_IDLE;
 						Uart1.RxIndex = 0;
 						break;
@@ -215,6 +306,7 @@ void USART1_IRQHandler(void)
 	}
 	
 }
+#endif
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
 	

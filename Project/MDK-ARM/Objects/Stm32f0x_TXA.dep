@@ -1,6 +1,6 @@
 Dependencies for Project 'Stm32f0x', Target 'TXA': (DO NOT MODIFY !)
-F (..\..\User\src\bsp_usart.c)(0x55D68D5F)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\bsp_usart.o --omf_browse .\objects\bsp_usart.crf --depend .\objects\bsp_usart.d)
-I (..\..\User\bsp.h)(0x55E01FCA)
+F (..\..\User\src\bsp_usart.c)(0x55ED0BDF)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\bsp_usart.o --omf_browse .\objects\bsp_usart.crf --depend .\objects\bsp_usart.d)
+I (..\..\User\bsp.h)(0x55ED2A3B)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)
 I (..\..\Libraries\CMSIS\Include\core_cm0.h)(0x55914444)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -33,10 +33,10 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x54C245B8)
-I (..\..\User\inc\bsp_usart.h)(0x55D68D5F)
-I (..\..\User\inc\m100_sdk.h)(0x55D68D5F)
-F (..\..\User\bsp.c)(0x55E020A2)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\bsp.o --omf_browse .\objects\bsp.crf --depend .\objects\bsp.d)
-I (..\..\User\bsp.h)(0x55E01FCA)
+I (..\..\User\inc\bsp_usart.h)(0x55EFF4BD)
+I (..\..\User\inc\m100_sdk.h)(0x55EFA499)
+F (..\..\User\bsp.c)(0x55E40687)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\bsp.o --omf_browse .\objects\bsp.crf --depend .\objects\bsp.d)
+I (..\..\User\bsp.h)(0x55ED2A3B)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)
 I (..\..\Libraries\CMSIS\Include\core_cm0.h)(0x55914444)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -69,10 +69,10 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x54C245B8)
-I (..\..\User\inc\bsp_usart.h)(0x55D68D5F)
-I (..\..\User\inc\m100_sdk.h)(0x55D68D5F)
-F (..\..\User\main.c)(0x55E3B524)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
-I (..\..\User\bsp.h)(0x55E01FCA)
+I (..\..\User\inc\bsp_usart.h)(0x55EFF4BD)
+I (..\..\User\inc\m100_sdk.h)(0x55EFA499)
+F (..\..\User\main.c)(0x55EFF515)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (..\..\User\bsp.h)(0x55ED2A3B)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)
 I (..\..\Libraries\CMSIS\Include\core_cm0.h)(0x55914444)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -105,10 +105,10 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x54C245B8)
-I (..\..\User\inc\bsp_usart.h)(0x55D68D5F)
-I (..\..\User\inc\m100_sdk.h)(0x55D68D5F)
-F (..\..\User\stm32f0xx_it.c)(0x55E02244)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f0xx_it.o --omf_browse .\objects\stm32f0xx_it.crf --depend .\objects\stm32f0xx_it.d)
-I (..\..\User\bsp.h)(0x55E01FCA)
+I (..\..\User\inc\bsp_usart.h)(0x55EFF4BD)
+I (..\..\User\inc\m100_sdk.h)(0x55EFA499)
+F (..\..\User\stm32f0xx_it.c)(0x55EFF51D)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f0xx_it.o --omf_browse .\objects\stm32f0xx_it.crf --depend .\objects\stm32f0xx_it.d)
+I (..\..\User\bsp.h)(0x55ED2A3B)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)
 I (..\..\Libraries\CMSIS\Include\core_cm0.h)(0x55914444)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -141,11 +141,11 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x54C245B8)
-I (..\..\User\inc\bsp_usart.h)(0x55D68D5F)
-I (..\..\User\inc\m100_sdk.h)(0x55D68D5F)
+I (..\..\User\inc\bsp_usart.h)(0x55EFF4BD)
+I (..\..\User\inc\m100_sdk.h)(0x55EFA499)
 I (..\..\User\stm32f0xx_it.h)(0x55914445)
-F (..\..\User\src\m100_sdk.c)(0x55D68D5F)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\m100_sdk.o --omf_browse .\objects\m100_sdk.crf --depend .\objects\m100_sdk.d)
-I (..\..\User\bsp.h)(0x55E01FCA)
+F (..\..\User\src\m100_sdk.c)(0x55EFEEF7)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\m100_sdk.o --omf_browse .\objects\m100_sdk.crf --depend .\objects\m100_sdk.d)
+I (..\..\User\bsp.h)(0x55ED2A3B)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)
 I (..\..\Libraries\CMSIS\Include\core_cm0.h)(0x55914444)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -178,8 +178,8 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x54C245B8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x54C245B8)
-I (..\..\User\inc\bsp_usart.h)(0x55D68D5F)
-I (..\..\User\inc\m100_sdk.h)(0x55D68D5F)
+I (..\..\User\inc\bsp_usart.h)(0x55EFF4BD)
+I (..\..\User\inc\m100_sdk.h)(0x55EFA499)
 F (..\..\Libraries\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_adc.c)(0x55C1C97A)(-c --cpu Cortex-M0 -g -O0 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include -I..\..\Libraries\CMSIS\Include -I..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc -I..\..\Libraries\STM32F0xx_CPAL_Driver\inc -I..\..\Driver -I..\..\User -I..\..\User\inc-I "D:\MDK Projects\TXA-XiangNong-x1\Project\MDK-ARM\RTE"-I C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.0\Device\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32F030 -DUSE_STDPERIPH_DRIVER-o .\objects\stm32f0xx_adc.o --omf_browse .\objects\stm32f0xx_adc.crf --depend .\objects\stm32f0xx_adc.d)
 I (..\..\Libraries\STM32F0xx_StdPeriph_Driver\inc\stm32f0xx_adc.h)(0x55914444)
 I (..\..\Libraries\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h)(0x55C1A2D1)

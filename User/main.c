@@ -57,21 +57,27 @@ int main(void)
 	u16 AmpSum = 0;
 	u16 V12sSum = 0;
 	u16 V6sSum = 0;
+	u8 i=0,j=0;
 	
 	SysTickInit();
-	USART_Config(USART1,9600);
+	USART_Config(USART1,115200);
 	TIM1_Config();
 	TIM3_Config();
 	ADC1_DMA_Init();
-	USART_Out(USART1,"Power On!\r\n");
+	//USART_Out(USART1,"Power On!\r\n");
 	Device.LiquidSpeed = 0;
-	Delay_10ms(100);
+	Device.AtomizerCurPWM = Device.AtomizerTargetPWM = 90;
+	Delay_10ms(10);
 	Device.AmpRef = Get_Amp_Ref();
 	AmpSum = 0;
-	USART_Out(USART1,"v=%d\r\n",Device.AmpRef);
+	//USART_Out(USART1,"v=%d\r\n",Device.AmpRef);
+	DJI_Pro_Test_Setup();
+	//USART_Out(USART1,"*\r\n");
+	DJI_Onboard_API_Activation();
+	Delay_10ms(200);
 	while(1){
 		if(TimeMs == 0) {
-			TimeMs = 10;
+			TimeMs = 100;
 			cnt++;
 			if(cnt<10) {
 				AmpSum  += Get_Amp_Val();
@@ -86,7 +92,24 @@ int main(void)
 				V6sSum  = Get_6S_Val();
 				cnt=0;
 			}
-			Send_Msg_2_M100();
+			//Send_Msg_2_M100();
+			//Atomizer_Soft_Start();
+			//USART_Send_Buf(USART1,"123456789",5);
+			for(i=0;i<9;i++) {
+				str[i] = 'A'+j;
+			}
+			j++;
+			if(j>25) {
+				j=0;
+			}
+			//memcpy(str,"AAAAAAAAAAAAAAAA",9);
+			//DJI_Onboard_send();
+			//USART_Out(USART1,"x\r\n");
+		}
+		if(Uart1.RxFlag >0 ) {
+			Pro_Receive_Interface();//一帧数据接收完成
+			
+			Uart1.RxFlag = 0;
 		}
 	}
 }
