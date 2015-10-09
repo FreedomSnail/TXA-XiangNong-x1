@@ -119,8 +119,8 @@ void TIM1_Config(void)
 	TIM_OC3Init(TIM1,&TIM_OCInitStructure);
 	TIM_CtrlPWMOutputs(TIM1,ENABLE);
 	TIM_SetAutoreload(TIM1,2000);	//PWM总周期时间设置
-	TIM_SetCompare2(TIM1,90);		//PWM高电平时间设置 ,x10us
-	TIM_SetCompare3(TIM1,90);		//PWM高电平时间设置 ,x10us
+	TIM_SetCompare2(TIM1,ATOMIZER_PWM_MIN);		//PWM高电平时间设置 ,x10us
+	TIM_SetCompare3(TIM1,ATOMIZER_PWM_MIN);		//PWM高电平时间设置 ,x10us
   /* Enable the CC2 Interrupt Request */
 	//TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM1, ENABLE);
@@ -167,7 +167,7 @@ void TIM3_Config(void)
 	TIM_OC1Init(TIM3,&TIM_OCInitStructure);
 	TIM_SetAutoreload(TIM3,1000);	//PWM总周期时间设置
 	
-	TIM_SetCompare1(TIM3,500);		//PWM高电平时间设置
+	TIM_SetCompare1(TIM3,0);		//PWM高电平时间设置
   	/* Enable the CC2 Interrupt Request */
   	//TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
   	TIM_Cmd(TIM3, ENABLE);	
@@ -513,44 +513,42 @@ u16 Get_6S_Val(void)
 ************************************************************************************************/
 void Send_Msg_2_M100(void)
 {
-	u8 i;
-	u8 checksum=0;
-	u8 Str[]="$LIQUID,24.0V,24.0V,100A,000,000*xx\r\n";// 6S电压，6s电压，总电流，水泵开合程度(pwm占空比)，雾化器开合程度
-
-	Str[8] = Device.V12s/100 + '0';
-	Str[9] = Device.V12s/10%10 + '0';
-	Str[11] = Device.V12s%10 + '0';
-
-	Str[14] = Device.V6s/100 + '0';
-	Str[15] = Device.V6s/10%10 + '0';
-	Str[17] = Device.V6s%10 + '0';
-
-	Str[20] = Device.Amp/100 + '0';
-	Str[21] = Device.Amp/10%10 + '0';
-	Str[22] = Device.Amp%10 + '0';
+	//u8 Str[]="$LIQUID,24.0V,24.0V,100A,000,000*xx\r\n";// 6S电压，6s电压，总电流，水泵开合程度(pwm占空比)，雾化器开合程度
+	//str[0] = "123456789";
+	//memcpy(str,"123456789",9);
+	#if 1
+	// 第一二个字节是12s电压值，第三四个字节是其中一边的6s电压，具体见如下索引
+	// 字节索引   大小(单位byte)   说明
+	// 0			2				12s电压
+	// 2			2				6s电压
+	// 4			2				电流
+	// 6			1				喷头速度
+	// 7			1				雾化器速度
+	// 8			1				是否药尽
+	// 9			1				包序号
 	
-	Str[25] = Device.LiquidSpeed/100 + '0';
-	Str[26] = Device.LiquidSpeed/10%10 + '0';
-	Str[27] = Device.LiquidSpeed%10 + '0';
-
-	Str[29] = Device.Atomizer/100 + '0';
-	Str[30] = Device.Atomizer/10%10 + '0';
-	Str[31] = Device.Atomizer%10 + '0';
+	//注:安卓上位机接收使用的是byte变量(范围-128~127),为了方便上位机的代码编写，这里使用128进制表示发送
+	str[0] = Device.V12s/128;
+	str[1] = Device.V12s%128;
 	
-	for(i=1;i<=31;i++) {// $和*号不参加校验
-		checksum^=Str[i];
-	}
-	if(((checksum&0xF0)>>4)>9) {	// A~F		
-		Str[33]=((checksum&0xF0)>>4)+'A'-10;
-	} else {						// 0~9
-		Str[33]=((checksum&0xF0)>>4)+'0';
-	}		
-	if((checksum&0x0F)>9) {
-		Str[34]=(checksum&0x0F)+'A'-10;
-	} else {
-		Str[34]=(checksum&0x0F)+'0';
-	}
-	USART_Out(USART1,Str);
+	str[2] = Device.V6s/128;
+	str[3] = Device.V6s%128;
+
+	str[4] = Device.Amp/128;
+	str[5] = Device.Amp%128;
+	
+	//str[4] = 50;
+	
+	str[6] = Device.LiquidSpeed;
+	//str[6] = 80;
+
+	str[7] = Device.Atomizer;
+
+	str[8] = Device.isDoseRunOut;
+	str[9]++;
+	#endif
+	
+	DJI_Onboard_send();
 }
 /************************************************************************************************
 ** Function name :			
@@ -579,7 +577,7 @@ void Atomizer_Soft_Start(void)
 		
 		//USART_Out(USART1,"+");
 	} else if(Device.AtomizerCurPWM>Device.AtomizerTargetPWM){
-		Device.AtomizerCurPWM -= Device.AtomizerTargetPWM;
+		Device.AtomizerCurPWM = Device.AtomizerTargetPWM;
 		TIM_SetCompare2(TIM1,Device.AtomizerCurPWM);
 		TIM_SetCompare3(TIM1,Device.AtomizerCurPWM);
 		//while(!((USART1->ISR)&(1<<7)));//等待发送完
@@ -587,5 +585,37 @@ void Atomizer_Soft_Start(void)
 		
 		//USART_Out(USART1,"-");
 	}
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 
+************************************************************************************************/
+void Open_Pump(void)
+{
+	Device.LiquidSpeed = 80;
+	Device.AtomizerTargetPWM = ATOMIZER_PWM_MAX;
+	TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+}
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 
+************************************************************************************************/
+void Close_Pump(void)
+{
+	Device.LiquidSpeed = 0;
+	Device.AtomizerTargetPWM = ATOMIZER_PWM_MIN;
+	TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
 }
 

@@ -1,3 +1,9 @@
+# MDK project files
+JLinkLog.txt
+*.Administrator
+*.uvoptx
+*.uvprojx
+
 # Object files
 *.o
 *.ko

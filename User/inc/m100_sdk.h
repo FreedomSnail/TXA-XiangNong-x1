@@ -122,6 +122,7 @@ typedef struct ProFrameData_Unit
 
 
 extern unsigned char str[];
+extern ProFrameData_Unit  DataFromMobile;
 
 
 

@@ -52,6 +52,8 @@
 #define 	SYS_TICKS_PER_SEC       100 
 #define countof(a) (sizeof(a) / sizeof(*(a)))//计算数组内的成员个数
 
+#define ATOMIZER_PWM_MIN	90
+#define ATOMIZER_PWM_MAX	210
 
 
 typedef struct {
@@ -59,12 +61,13 @@ typedef struct {
 	//u16 AmpInstant;	//电流瞬间值
 	//u16 AmpEverage;	//电流平均值
 	u16 Amp;
-	u16 V12s;
+	u16 V12s;			//如果检测到的电压是48.5v则用485来表示
 	u16 V6s;
 	u16	LiquidSpeed;
 	u16 Atomizer;
 	u16 AtomizerCurPWM;
 	u16 AtomizerTargetPWM;
+	u16 isDoseRunOut;
 }
 Device_TYPEDEF;
 
@@ -85,6 +88,9 @@ u16 Get_12S_Val(void);
 u16 Get_6S_Val(void);
 void Send_Msg_2_M100(void);
 void Atomizer_Soft_Start(void);
+void Open_Pump(void);
+void Close_Pump(void);
+
 
 #endif
 

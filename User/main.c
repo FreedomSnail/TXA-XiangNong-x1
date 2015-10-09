@@ -57,7 +57,7 @@ int main(void)
 	u16 AmpSum = 0;
 	u16 V12sSum = 0;
 	u16 V6sSum = 0;
-	u8 i=0,j=0;
+	
 	
 	SysTickInit();
 	USART_Config(USART1,115200);
@@ -77,7 +77,7 @@ int main(void)
 	Delay_10ms(200);
 	while(1){
 		if(TimeMs == 0) {
-			TimeMs = 100;
+			TimeMs = 10;
 			cnt++;
 			if(cnt<10) {
 				AmpSum  += Get_Amp_Val();
@@ -92,23 +92,24 @@ int main(void)
 				V6sSum  = Get_6S_Val();
 				cnt=0;
 			}
-			//Send_Msg_2_M100();
-			//Atomizer_Soft_Start();
-			//USART_Send_Buf(USART1,"123456789",5);
-			for(i=0;i<9;i++) {
-				str[i] = 'A'+j;
-			}
-			j++;
-			if(j>25) {
-				j=0;
-			}
-			//memcpy(str,"AAAAAAAAAAAAAAAA",9);
-			//DJI_Onboard_send();
-			//USART_Out(USART1,"x\r\n");
+			Send_Msg_2_M100();
+			Atomizer_Soft_Start();
 		}
 		if(Uart1.RxFlag >0 ) {
+			//USART_Out(USART1,"\r\n");
 			Pro_Receive_Interface();//一帧数据接收完成
-			
+			if((DataFromMobile.CommandSet == 0x02)&&(DataFromMobile.CommandId == 0x02)) {
+				switch(DataFromMobile.data[0]) {
+					case '1':	//打开水泵
+						Open_Pump();
+						break;
+					case '0':
+						Close_Pump();
+						break;
+					default:
+						break;
+				}
+			}
 			Uart1.RxFlag = 0;
 		}
 	}

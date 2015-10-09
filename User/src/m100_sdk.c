@@ -872,7 +872,6 @@ int Pro_Send_Interface(ProSendParameter *parameter)
 				global_seq_num ++;
 			}
 			p2session->pre_seq_num = global_seq_num;
-			
 			ret = sdk_encrypt_interface((unsigned char*)p2session->mmu->start_addr,
 					parameter->buf,parameter->length,0,parameter->need_encrypt,
 					p2session->session_id,global_seq_num ++);
@@ -899,7 +898,7 @@ int Pro_Send_Interface(ProSendParameter *parameter)
 ** Others :
 ** 
 ************************************************************************************************/
-static activation_data_t activation_msg = {14,2,1,""};
+static activation_data_t activation_msg = {14,2,0x02030A00,""};
 unsigned char str[50];
 
 /************************************************************************************************
@@ -1016,11 +1015,11 @@ void DJI_Pro_Test_Setup(void)
 
 	activation_msg.app_id =1008902;
 	activation_msg.app_api_level = 2;
-	activation_msg.app_ver = 1;
+	activation_msg.app_ver = 0x02030A00;
 	
 	
-	memcpy(activation_msg.app_bundle_id,"1234567890123456789012", 32);
-	key = "818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9c";
+	memcpy(activation_msg.app_bundle_id,"1234567890123456789017", 32);
+	key = "818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9d";    
 	Pro_Config_Comm_Encrypt_Key(key);
 	Pro_Link_Setup();
 }
@@ -1085,10 +1084,9 @@ void DJI_Onboard_API_Activation(void)
 void DJI_Onboard_send(void)
 {
 	//memcpy(str,"123456789",9);
-	App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,(unsigned char*)&str,sizeof(str));
-	//App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,(unsigned char*)&str,9);
+	//App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,str,sizeof(str));
+	App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,(unsigned char*)&str,9);
 }
-
 
 void Pro_Receive_Interface(void)
 {
@@ -1135,8 +1133,6 @@ void Pro_Receive_Interface(void)
 //				}
 //				break;
 		}
-		
-		
 	}
 	else
 	{
@@ -1149,12 +1145,14 @@ void Pro_Receive_Interface(void)
 		switch(RecData.CommandSet)
 		{
 			case 0x02:
-				if(RecData.CommandId==0x02)
+				if(RecData.CommandId==0x02) {
 					memcpy((unsigned char*)&DataFromMobile,(unsigned char*)&RecData,sizeof(RecData));
 					//USART_Send_Buf(USART1,DataFromMobile.data,RecData.dataLen);
-					App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,DataFromMobile.data,RecData.dataLen);
+					//App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,DataFromMobile.data,RecData.dataLen);
+					
+					
+				}
 				break;
-			
 		}
 	}
 	#endif
