@@ -124,194 +124,101 @@ void SysTick_Handler(void)
   * @retval None
   */
 
-uint8_t count = 0;
-uint8_t is_initiated = 0;
-//$PUMP,100,**
-#if 1
 void USART1_IRQHandler(void)
 {
 	u8 Rev;
-	static u16 dataLen;
   	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) { 	
 		Rev = USART_ReceiveData(USART1);
 		//while(!((USART1->ISR)&(1<<7)));//等待发送完
 		//USART1->TDR= Rev;
-		#if 1
-		switch(Uart1.PackageStatus) {
-			case RECV_IDLE:
-				if(Rev == _SDK_SOF) {
-					Uart1.RxIndex = 1;
-					Uart1.PackageStatus = RECV_COMMAND_SET;
-					memset(Uart1.RxDataBuf,0,RX_MAX_NUM);
-					Uart1.RxDataBuf[0] = _SDK_SOF;
-				}
-				break;
-			case RECV_COMMAND_SET:
-				Uart1.RxDataBuf[Uart1.RxIndex] = Rev;
-				if(Uart1.RxIndex == sizeof(SDKHeader)) {
-				//if(Uart1.RxIndex == 12) {
-					if(Rev == 0x02) {
-						//USART_Out(USART1,"*");
-						Uart1.PackageStatus = RECV_COMMAND_ID;
-					} else {
-						Uart1.PackageStatus = RECV_IDLE;
-					}
-				}
-				Uart1.RxIndex++;
-				break;
-			case RECV_COMMAND_ID:
-				Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
-				if(Rev == 0x02) {
-					dataLen = ((unsigned int)(0x03&&Uart1.RxDataBuf[2])<<8)+(unsigned int)Uart1.RxDataBuf[1];
-					Uart1.PackageStatus = RECV_WAIT_DONE;
-				} else {
-					Uart1.PackageStatus = RECV_IDLE;
-				}
-				break;
-			case RECV_WAIT_DONE:
-				if(Uart1.RxIndex<RX_MAX_NUM) {
-					Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
-					if(Uart1.RxIndex == dataLen) {
-						Uart1.RxFlag = 1;
-						//Pro_Receive_Interface();//一帧数据接收完成
-						//USART_Send_Buf(USART1,Uart1.RxDataBuf,dataLen);
-						//USART_Out(USART1,"!");
-						Uart1.PackageStatus = RECV_IDLE;
-					}
-				} else {//接收到的数据致使数组越界
-					Uart1.PackageStatus = RECV_IDLE;
-				}
-				break;
-			default:
-				break;
-		}
-		#endif
 	} 
 }
-#else
-void USART1_IRQHandler(void)
+void EXTI4_15_IRQHandler(void)
 {
-	uint8_t Rev;
-	u8 checksumRecv,checksumCal;
-	u8 parity1;
-	u8 parity2;
-	u8 i;
-	u16 temp;
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	   //判断读寄存器是否非空
-  	{	
-    	Rev = USART_ReceiveData(USART1);
-		//while(!((USART1->ISR)&(1<<7)));//等待发送完
-		//USART1->TDR= Rev;
-		switch(Uart1.PackageStatus) {
-			case RECV_IDLE:
-				if(Rev == '$') {
-					Uart1.RxIndex = 0;
-					Uart1.PackageStatus = RECV_START;
+	#if 1
+	u16 period; 
+	Device.PWMOffLineCnt = 0;
+	Device.PWMOfflineFlag = PWM_ONLINE;
+	if(EXTI_GetITStatus(EXTI_Line6) != RESET) {
+		EXTI_ClearITPendingBit(EXTI_Line6);
+		if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_6)) {	//上升沿
+			LIQUID_OUT_OF_1();
+			Device.PWMRaisingTime = TIM_GetCounter(TIM1);
+		} else {
+			LIQUID_OUT_OF_0();
+			Device.PWMFallingTime = TIM_GetCounter(TIM1);
+			if( Device.PWMFallingTime>Device.PWMRaisingTime ) {
+				period = Device.PWMFallingTime - Device.PWMRaisingTime;
+				if(period>TIMER_CRITICAL_POINT) {
+					period = TIMER1_AUTO_LOAD - Device.PWMFallingTime + Device.PWMRaisingTime;
 				}
-				break;
-			case RECV_START:
-				switch(Rev) {
-					case '\r':
-					case '\n':
-						parity1 = Uart1.RxDataBuf[Uart1.RxIndex-2];
-						parity2 = Uart1.RxDataBuf[Uart1.RxIndex-1];
-						if((parity1>='0')&&(parity1<='9')) {
-							parity1-='0';
-						} else if((parity1>='A')&&(parity1<='F')) {
-							parity1-=55;
-						}
-						if((parity2>='0')&&(parity2<='9')) {
-							parity2-='0';
-						} else if((parity2>='A')&&(parity2<='F')) {
-							parity2-=55;
-						}
-						checksumRecv = parity1*16+parity2;
-						checksumCal = 0;
-						for(i=0;i<Uart1.RxIndex-3;i++) {
-							checksumCal ^= Uart1.RxDataBuf[i];
-						}
-						if(checksumCal == checksumRecv) {	//校验ok
-							if((Uart1.RxDataBuf[0]=='P')&&(Uart1.RxDataBuf[1]=='U')&&(Uart1.RxDataBuf[2]=='M')&&(Uart1.RxDataBuf[3]=='P')){
-								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(temp<50) {	
-									Device.LiquidSpeed = 0;
-									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
-									TIM_SetCompare2(TIM1,90);//关闭
-									TIM_SetCompare3(TIM1,90);
-								} else if(temp < 100) {
-									Device.LiquidSpeed = temp;
-									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
-									TIM_SetCompare2(TIM1,210);//关闭
-									TIM_SetCompare3(TIM1,210);
-								} else {
-									TIM_SetCompare1(TIM3,1030);
-									TIM_SetCompare2(TIM1,210);//关闭
-									TIM_SetCompare3(TIM1,210);
-								}
-							} else if((Uart1.RxDataBuf[0]=='A')&&(Uart1.RxDataBuf[1]=='T')&&(Uart1.RxDataBuf[2]=='O')&&(Uart1.RxDataBuf[3]=='M')){
-								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								if(temp<=100) {
-									Device.Atomizer = temp;
-									temp = temp*6/5 + 90; // x10us
-									TIM_SetCompare2(TIM1,temp);
-									TIM_SetCompare3(TIM1,temp);
-								}
-							}
-						} 
-						#if 1
-						else {
-							if((Uart1.RxDataBuf[0]=='P')&&(Uart1.RxDataBuf[1]=='U')&&(Uart1.RxDataBuf[2]=='M')&&(Uart1.RxDataBuf[3]=='P')){
-								temp = (Uart1.RxDataBuf[5]-'0')*100+(Uart1.RxDataBuf[6]-'0')*10+(Uart1.RxDataBuf[7]-'0');
-								while(!((USART1->ISR)&(1<<7)));//等待发送完
-								USART1->TDR= '*';
-								if(temp<50) {
-									Device.LiquidSpeed = 0;
-									Device.AtomizerTargetPWM = 90;
-									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
-									//TIM_SetCompare2(TIM1,90);//关闭
-									//TIM_SetCompare3(TIM1,90);
-								} else if(temp < 100) {
-									Device.LiquidSpeed = temp;
-									Device.AtomizerTargetPWM = 210;
-									TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
-									//TIM_SetCompare2(TIM1,210);//关闭
-									//TIM_SetCompare3(TIM1,210);
-								} else {
-									Device.AtomizerTargetPWM = 210;
-									TIM_SetCompare1(TIM3,1030);
-									//TIM_SetCompare2(TIM1,210);//关闭
-									//TIM_SetCompare3(TIM1,210);
-								}
-							}
-						}
-						#endif
-						Uart1.PackageStatus = RECV_IDLE;
-						Uart1.RxIndex = 0;
-						break;
-					default:
-						Uart1.RxDataBuf[Uart1.RxIndex] = Rev;
-						Uart1.RxIndex++;
-						if(Uart1.RxIndex==RX_MAX_NUM) {//防止数组溢出	
-							Uart1.RxIndex = 0;
-						}
-						break;
+			} else {
+				period = Device.PWMRaisingTime - Device.PWMFallingTime;
+				if(period>TIMER_CRITICAL_POINT) {
+					period = TIMER1_AUTO_LOAD - Device.PWMRaisingTime + Device.PWMFallingTime;
 				}
-				break;
-			default:
-				
-				break;
-	} 
-	
+			}
+			if( period > PUMP_OPEN_CRITICAL_POINT ) {
+				if(Device.PumpStatusFlag != PUMP_STATUS_OPEN) {
+					Device.PumpStatusFlag = PUMP_STATUS_OPEN;
+					Open_Pump();
+				}
+			} else {
+				if(Device.PumpStatusFlag != PUMP_STATUS_CLOSED) {
+					Device.PumpStatusFlag = PUMP_STATUS_CLOSED;
+					Close_Pump();
+				}
+			}
+		}
 		
+	} else if(EXTI_GetITStatus(EXTI_Line7) != RESET) {
+		EXTI_ClearITPendingBit(EXTI_Line7);
+		if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_7)) {	//上升沿
+			LIQUID_OUT_OF_1();
+			Device.PWMRaisingTime = TIM_GetCounter(TIM1);
+		} else {
+			LIQUID_OUT_OF_0();
+			Device.PWMFallingTime = TIM_GetCounter(TIM1);
+			if( Device.PWMFallingTime>Device.PWMRaisingTime ) {
+				period = Device.PWMFallingTime - Device.PWMRaisingTime;
+				if(period>TIMER_CRITICAL_POINT) {
+					period = TIMER1_AUTO_LOAD - Device.PWMFallingTime + Device.PWMRaisingTime;
+				}
+			} else {
+				period = Device.PWMRaisingTime - Device.PWMFallingTime;
+				if(period>TIMER_CRITICAL_POINT) {
+					period = TIMER1_AUTO_LOAD - Device.PWMRaisingTime + Device.PWMFallingTime;
+				}
+			}
+			if( period > PUMP_OPEN_CRITICAL_POINT ) {
+				if(Device.PumpStatusFlag != PUMP_STATUS_OPEN) {
+					Device.PumpStatusFlag = PUMP_STATUS_OPEN;
+					Open_Pump();
+				}
+			} else {
+				if(Device.PumpStatusFlag != PUMP_STATUS_CLOSED) {
+					Device.PumpStatusFlag = PUMP_STATUS_CLOSED;
+					Close_Pump();
+				}
+			}
+		}
 	}
-	
+	#endif
+
 }
-#endif
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 {
-	
+	static u8 c;
+	if(TIM_GetITStatus(TIM1, TIM_IT_Update) != RESET) {
+		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+		c++;
+		if(c%2==0) {
+			LIQUID_OUT_OF_0();
+		} else {
+			LIQUID_OUT_OF_1();
+		}
+	}
 }
-
 void TIM3_IRQHandler(void)
 {
 

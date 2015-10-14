@@ -54,22 +54,37 @@
 
 #define ATOMIZER_PWM_MIN	90
 #define ATOMIZER_PWM_MAX	210
+#define ADC1_DR_Address                0x40012440
 
+#define RCC_LIQUID_OUT_OF_PORT 	RCC_AHBPeriph_GPIOA 		/* GPIO端口时钟 */
+#define LIQUID_OUT_OF_PORT		GPIOA
+#define LIQUID_OUT_OF_PIN		GPIO_Pin_5
+
+#define LIQUID_OUT_OF_1()	LIQUID_OUT_OF_PORT->BSRR = LIQUID_OUT_OF_PIN
+#define LIQUID_OUT_OF_0()	LIQUID_OUT_OF_PORT->BRR  = LIQUID_OUT_OF_PIN
+
+
+#define	TIMER1_AUTO_LOAD		50000  //定时器溢出时间
+#define	TIMER_CRITICAL_POINT	30000  //定时器溢出发生在上升沿与下降沿采样时间之间
+
+#define	PUMP_OPEN_CRITICAL_POINT	1500
+
+typedef enum {
+	PUMP_STATUS_CLOSED,
+	PUMP_STATUS_OPEN
+} PumpStatusTypeEnum;
+typedef enum {
+	PWM_OFFLINE,
+	PWM_ONLINE
+} PWMStatusTypeEnum;
 
 typedef struct {
-	u16 AmpRef;			//基准电流值
-	//u16 AmpInstant;	//电流瞬间值
-	//u16 AmpEverage;	//电流平均值
-	u16 Amp;
-	u16 V12s;			//如果检测到的电压是48.5v则用485来表示
-	u16 V6s;
-	u16	LiquidSpeed;
-	u16 Atomizer;
-	u16 AtomizerCurPWM;
-	u16 AtomizerTargetPWM;
-	u16 isDoseRunOut;
-}
-Device_TYPEDEF;
+	PumpStatusTypeEnum PumpStatusFlag;	
+	PWMStatusTypeEnum PWMOfflineFlag;
+	u16 PWMOffLineCnt;
+	u16 PWMRaisingTime;
+	u16 PWMFallingTime;
+}Device_TYPEDEF;
 
 extern Device_TYPEDEF Device;
 
@@ -78,6 +93,7 @@ extern u32	TimeMs;
 extern __IO uint16_t RegularConvData_Tab[];
 
 void  SysTickInit(void);
+void GPIO_Config(void);
 void TIM1_Config(void);
 void TIM3_Config(void);
 void ADC1_DMA_Init(void);

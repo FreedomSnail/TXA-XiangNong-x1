@@ -38,6 +38,7 @@ void bsp_Init(void)
 {
 	
 }
+
 /************************************************************************************************
 ** Function name :			
 ** Description :
@@ -63,6 +64,38 @@ void  SysTickInit(void)
 		while(1);
 	}
 }
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 配置液位感应器输入信号脚
+************************************************************************************************/
+void GPIO_Config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHBPeriphClockCmd(RCC_LIQUID_OUT_OF_PORT, ENABLE);
+	/* PA5 */
+	GPIO_InitStructure.GPIO_Pin   = LIQUID_OUT_OF_PIN;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL; 
+	GPIO_Init(LIQUID_OUT_OF_PORT, &GPIO_InitStructure);	
+#if 0
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+	/* Pb6,7 */
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6|GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL; 
+	GPIO_Init(GPIOB, &GPIO_InitStructure);	
+	#endif
+}
 
 /************************************************************************************************
 ** Function name :			
@@ -72,58 +105,60 @@ void  SysTickInit(void)
 ** Output :
 ** Return :
 ** Others :
-** 输出范围0.9ms~2.1ms
+** 此定时器的定时计数功能提供给检测pwm脉宽用，这里同时初始化了输入pwm信号用到的管脚PB6、7,配置管脚
+为输入上升下降沿均触发外部中断
 ************************************************************************************************/
 void TIM1_Config(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
+	EXTI_InitTypeDef EXTI_InitStructure;
 
 	/* TIM1 clock enable */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 
-	/* GPIOA clock enable */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-
-	/* TIM1 chennel2 ,TIM1 chennel3 configuration : PA9,PA10 */
-	GPIO_InitStructure.GPIO_Pin	= GPIO_Pin_9|GPIO_Pin_10;
-	GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP; 
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-	/* Connect TIM pin to AF2 */
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
 #if 0
-	/* Enable the TIM2 global Interrupt */
+	/* Enable the TIM1 global Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = TIM1_BRK_UP_TRG_COM_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 #endif
 
-	
- 	//TIM_OCInitStructure.TIM_
-	TIM_OCInitStructure.TIM_Pulse = 1000;
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	//TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High;
-	//TIM_OCInitStructure.TIM_OutputNState = TIM_OutputState_Enable;
-	TIM_PrescalerConfig(TIM1,320-1,TIM_PSCReloadMode_Immediate);
-	TIM_OC2Init(TIM1,&TIM_OCInitStructure);
-	TIM_OC3Init(TIM1,&TIM_OCInitStructure);
-	TIM_CtrlPWMOutputs(TIM1,ENABLE);
-	TIM_SetAutoreload(TIM1,2000);	//PWM总周期时间设置
-	TIM_SetCompare2(TIM1,ATOMIZER_PWM_MIN);		//PWM高电平时间设置 ,x10us
-	TIM_SetCompare3(TIM1,ATOMIZER_PWM_MIN);		//PWM高电平时间设置 ,x10us
-  /* Enable the CC2 Interrupt Request */
-	//TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+	TIM_PrescalerConfig(TIM1,32-1,TIM_PSCReloadMode_Immediate);
+	TIM_SetAutoreload(TIM1,TIMER1_AUTO_LOAD);	//定时器溢出周期50ms
+  	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM1, ENABLE);
+
+	
+#if 1
+		/* GPIOB clock enable */
+		RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);//使能时钟  中断用到了 SYSCFG 也要使能SYSCFG
+	
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6|GPIO_Pin_7;
+		GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_IN;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+		GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP; 
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+		/* 连接IO口到中断线 */
+		SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB,EXTI_PinSource6);//|EXTI_PinSource7
+		SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB,EXTI_PinSource7);
+		/* 配置中断线6为边降沿触发*/
+		EXTI_InitStructure.EXTI_Line = EXTI_Line6|EXTI_Line7;
+		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+		EXTI_Init(&EXTI_InitStructure);
+		
+		/* Enable the ext6 global Interrupt */
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
+		NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure);
+#endif
 }
 /************************************************************************************************
 ** Function name :			
@@ -133,7 +168,7 @@ void TIM1_Config(void)
 ** Output :
 ** Return :
 ** Others :
-** 
+** 此定时器比较输出功能提供给水泵控制用，这里同时初始化了水泵控制相应的管脚
 ************************************************************************************************/
 void TIM3_Config(void)
 {
@@ -180,6 +215,49 @@ void TIM3_Config(void)
 	NVIC_Init(&NVIC_InitStructure);
 	#endif
 }
+/************************************************************************************************
+** Function name :			
+** Description :
+** 
+** Input :
+** Output :
+** Return :
+** Others :
+** 此定时器的输入捕获功能提供给PB6关键检测pwm脉宽用
+************************************************************************************************/
+void TIM16_Config(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	TIM_OCInitTypeDef TIM_OCInitStructure;
+
+	/* TIM16 clock enable */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
+
+	/* GPIOA clock enable */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+
+	/* TIM16 chennel1N  configuration : PB6 */
+	GPIO_InitStructure.GPIO_Pin	= GPIO_Pin_6;
+	GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP; 
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/* Connect TIM pin to AF5 */
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_5);
+#if 0
+	/* Enable the TIM2 global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM1_BRK_UP_TRG_COM_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+#endif
+
+	TIM_Cmd(TIM16, ENABLE);
+}
+
 /************************************************************************************************
 ** Function name :			
 ** Description :
@@ -243,7 +321,6 @@ void ADC_Config(void)
 
 	
 }
-#define ADC1_DR_Address                0x40012440
 __IO uint16_t RegularConvData_Tab[6];
 /************************************************************************************************
 ** Function name :			
@@ -275,7 +352,6 @@ void ADC1_DMA_Init(void)
   	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL ;
   	GPIO_Init(GPIOA, &GPIO_InitStruct);				// PC1,输入时不用设置速率
-
  
   	/* DMA1 Channel1 Config */
   	DMA_DeInit(DMA1_Channel1);
@@ -346,261 +422,9 @@ void ADC1_DMA_Init(void)
 ** Others :
 ** 
 ************************************************************************************************/
-
-void PUMP_Output(void)
-{
-	u8 i;
-	u8 checksum=0;
-	u8 Str[] = "$PUMP,050,*00xx";
-	Str[13] = '\r';	//回车
-	Str[14] = '\n'; //换行
-	for(i=1;i<=9;i++) {// $和*号不参加校验
-		checksum^=Str[i];
-	}
-	if(((checksum&0xF0)>>4)>9) {	// A~F		
-		Str[11]=((checksum&0xF0)>>4)+'A'-10;
-	} else {						// 0~9
-		Str[11]=((checksum&0xF0)>>4)+'0';
-	}		
-	if((checksum&0x0F)>9) {
-		Str[12]=(checksum&0x0F)+'A'-10;
-	} else {
-		Str[12]=(checksum&0x0F)+'0';
-	}
-	USART_Out(USART1,Str);
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 
-************************************************************************************************/
-void Liquid_Output(void)
-{
-	u8 i;
-	u8 checksum=0;
-	u8 Str[] = "$LIQUID,V050,*00xx";
-	Str[13] = '\r';	//回车
-	Str[14] = '\n'; //换行
-	for(i=1;i<=9;i++) {// $和*号不参加校验
-		checksum^=Str[i];
-	}
-	if(((checksum&0xF0)>>4)>9) {	// A~F		
-		Str[11]=((checksum&0xF0)>>4)+'A'-10;
-	} else {						// 0~9
-		Str[11]=((checksum&0xF0)>>4)+'0';
-	}		
-	if((checksum&0x0F)>9) {
-		Str[12]=(checksum&0x0F)+'A'-10;
-	} else {
-		Str[12]=(checksum&0x0F)+'0';
-	}
-	USART_Out(USART1,Str);
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 上电时获取测量电流值的基准比较值
-************************************************************************************************/
-u16 Get_Amp_Ref(void)
-{
-	u8 cnt;
-	u16 AmpSum = 0;
-	u32 ADC_ConvertedValue;
-	cnt = 0;
-	while(cnt<10) {
-		if(TimeMs == 0) {
-			TimeMs = 10;
-			cnt++;
-			ADC_ConvertedValue= RegularConvData_Tab[0];//计算电流
-			ADC_ConvertedValue = ADC_ConvertedValue*3300/4096;
-			AmpSum += ADC_ConvertedValue;
-		}	
-	}
-	return (u16)(AmpSum/10);
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 获取电流值
-************************************************************************************************/
-u16 Get_Amp_Val(void)
-{
-	u16 Amp;
-	u32 ADC_ConvertedValue;
-	ADC_ConvertedValue= RegularConvData_Tab[0];//计算电流
-	ADC_ConvertedValue = ADC_ConvertedValue*3300/4096;
-	#if 1 	// 5v供电
-	if(ADC_ConvertedValue<Device.AmpRef) {
-		Amp = 0;
-	} else if(ADC_ConvertedValue<(Device.AmpRef+997)) {	// (2500+150*13.3)/2=2247
-		ADC_ConvertedValue = (ADC_ConvertedValue-Device.AmpRef)*2;
-		Amp = ADC_ConvertedValue*10/133;
-	} else {
-		Amp = 150;
-	}
-	#else
-	if(ADC_ConvertedValueLocal[0]<1650) {
-		Amp = 0;
-	} else if(ADC_ConvertedValueLocal[0]<2967) {	// 1650+150*3.3/5*13.3
-		ADC_ConvertedValueLocal[0] -= 1650;
-		Amp = ADC_ConvertedValueLocal[0]*500/(33*133);
-	} else {
-		Amp = 150;
-	}
-	#endif
-	return Amp;
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 获取12S电压值
-************************************************************************************************/
-u16 Get_12S_Val(void)
-{
-	u32 ADC_ConvertedValue;
-	ADC_ConvertedValue= RegularConvData_Tab[2];//计算12s电压
-	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
-	return (u16)ADC_ConvertedValue;
-
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 获取12S电压值
-************************************************************************************************/
-u16 Get_6S_Val(void)
-{
-	u32 ADC_ConvertedValue;
-	ADC_ConvertedValue= RegularConvData_Tab[1];//计算6s电压
-	ADC_ConvertedValue = ADC_ConvertedValue*33*18/4096;
-	return (u16)ADC_ConvertedValue;
-
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-**
-************************************************************************************************/
-void Send_Msg_2_M100(void)
-{
-	//u8 Str[]="$LIQUID,24.0V,24.0V,100A,000,000*xx\r\n";// 6S电压，6s电压，总电流，水泵开合程度(pwm占空比)，雾化器开合程度
-	//str[0] = "123456789";
-	//memcpy(str,"123456789",9);
-	#if 1
-	// 第一二个字节是12s电压值，第三四个字节是其中一边的6s电压，具体见如下索引
-	// 字节索引   大小(单位byte)   说明
-	// 0			2				12s电压
-	// 2			2				6s电压
-	// 4			2				电流
-	// 6			1				喷头速度
-	// 7			1				雾化器速度
-	// 8			1				是否药尽
-	// 9			1				包序号
-	
-	//注:安卓上位机接收使用的是byte变量(范围-128~127),为了方便上位机的代码编写，这里使用128进制表示发送
-	str[0] = Device.V12s/128;
-	str[1] = Device.V12s%128;
-	
-	str[2] = Device.V6s/128;
-	str[3] = Device.V6s%128;
-
-	str[4] = Device.Amp/128;
-	str[5] = Device.Amp%128;
-	
-	//str[4] = 50;
-	
-	str[6] = Device.LiquidSpeed;
-	//str[6] = 80;
-
-	str[7] = Device.Atomizer;
-
-	str[8] = Device.isDoseRunOut;
-	str[9]++;
-	#endif
-	
-	DJI_Onboard_send();
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 雾化器电调软启动
-************************************************************************************************/
-void Atomizer_Soft_Start(void)
-{
-	if(Device.AtomizerCurPWM<Device.AtomizerTargetPWM) {
-		if(Device.AtomizerCurPWM<110) {
-			Device.AtomizerCurPWM = 110;
-		} else if(Device.AtomizerCurPWM<130) {
-			Device.AtomizerCurPWM ++;
-		} else {
-			Device.AtomizerCurPWM += 2;
-		}
-		TIM_SetCompare2(TIM1,Device.AtomizerCurPWM);
-		TIM_SetCompare3(TIM1,Device.AtomizerCurPWM);
-		//while(!((USART1->ISR)&(1<<7)));//等待发送完
-		//USART1->TDR= '+';
-		
-		//USART_Out(USART1,"+");
-	} else if(Device.AtomizerCurPWM>Device.AtomizerTargetPWM){
-		Device.AtomizerCurPWM = Device.AtomizerTargetPWM;
-		TIM_SetCompare2(TIM1,Device.AtomizerCurPWM);
-		TIM_SetCompare3(TIM1,Device.AtomizerCurPWM);
-		//while(!((USART1->ISR)&(1<<7)));//等待发送完
-		//USART1->TDR= '-';
-		
-		//USART_Out(USART1,"-");
-	}
-}
-/************************************************************************************************
-** Function name :			
-** Description :
-** 
-** Input :
-** Output :
-** Return :
-** Others :
-** 
-************************************************************************************************/
 void Open_Pump(void)
 {
-	Device.LiquidSpeed = 80;
-	Device.AtomizerTargetPWM = ATOMIZER_PWM_MAX;
-	TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+	TIM_SetCompare1(TIM3,800);
 }
 /************************************************************************************************
 ** Function name :			
@@ -614,8 +438,6 @@ void Open_Pump(void)
 ************************************************************************************************/
 void Close_Pump(void)
 {
-	Device.LiquidSpeed = 0;
-	Device.AtomizerTargetPWM = ATOMIZER_PWM_MIN;
-	TIM_SetCompare1(TIM3,Device.LiquidSpeed*10);
+	TIM_SetCompare1(TIM3,0);
 }
 

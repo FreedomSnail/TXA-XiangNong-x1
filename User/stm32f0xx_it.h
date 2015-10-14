@@ -53,9 +53,6 @@ extern __IO uint16_t IC2Value;
 extern __IO uint16_t DutyCycle;
 extern __IO uint32_t Frequency;
 
-extern uint8_t count;
-extern uint8_t is_initiated;
-
 #ifdef __cplusplus
 }
 #endif

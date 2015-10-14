@@ -9,7 +9,7 @@
 ** Description :
 **-----------------------------------------------------------------------------------------------
 ** Created by : Luzhi
-** Created date :2015-8-5 10:51:20
+** Created date :2015-10-9 13:57:02
 ** Version :V1.0
 ** Description :
 **-----------------------------------------------------------------------------------------------
@@ -17,6 +17,18 @@
 ** Modified date :
 ** Version :
 ** Description :
+	此版本适应旧飞控硬件的控制:检测输入pwm脉宽，来控制水泵的开关。
+	
+	电路板硬件版本:
+	stm32f03x-VB0.SchDoc
+	电池电压电流检测-基于M0-VB0.PcbDoc
+	农药机电池到电调接口板-VC0.PcbDoc
+	
+	pwm输入脚使用PB6-TX ,PB7-RX中的任意一个都可以
+	输入的pwm信号特征:周期20ms,高电平时间范围0.9ms~2.1ms
+	当pwm的信号小于1.5ms时，关闭水泵，反之开启水泵
+
+	系统时钟32M
 ************************************************************************************************/
 #include "bsp.h"
 /************************************************************************************************
@@ -45,73 +57,27 @@ void Delay_10ms(u8 time)
 ** Return :
 ** Others :
 ** 
-APP ID ：            1008902
-通讯密钥      818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9c
-级别   2
-
 ************************************************************************************************/
 int main(void)
 {	
-	
-	u8 cnt=0;
-	u16 AmpSum = 0;
-	u16 V12sSum = 0;
-	u16 V6sSum = 0;
-	
-	
 	SysTickInit();
-	USART_Config(USART1,115200);
+	GPIO_Config();
 	TIM1_Config();
 	TIM3_Config();
-	ADC1_DMA_Init();
-	//USART_Out(USART1,"Power On!\r\n");
-	Device.LiquidSpeed = 0;
-	Device.AtomizerCurPWM = Device.AtomizerTargetPWM = 90;
-	Delay_10ms(10);
-	Device.AmpRef = Get_Amp_Ref();
-	AmpSum = 0;
-	//USART_Out(USART1,"v=%d\r\n",Device.AmpRef);
-	DJI_Pro_Test_Setup();
-	//USART_Out(USART1,"*\r\n");
-	DJI_Onboard_API_Activation();
-	Delay_10ms(200);
+	//ADC1_DMA_Init();
 	while(1){
 		if(TimeMs == 0) {
-			TimeMs = 10;
-			cnt++;
-			if(cnt<10) {
-				AmpSum  += Get_Amp_Val();
-				V12sSum += Get_12S_Val();
-				V6sSum  += Get_6S_Val();
-			} else {
-				Device.Amp = AmpSum/10;
-				Device.V12s = V12sSum/10;
-				Device.V6s = V6sSum/10;
-				AmpSum  = Get_Amp_Val();
-				V12sSum = Get_12S_Val();
-				V6sSum  = Get_6S_Val();
-				cnt=0;
-			}
-			Send_Msg_2_M100();
-			Atomizer_Soft_Start();
-		}
-		if(Uart1.RxFlag >0 ) {
-			//USART_Out(USART1,"\r\n");
-			Pro_Receive_Interface();//一帧数据接收完成
-			if((DataFromMobile.CommandSet == 0x02)&&(DataFromMobile.CommandId == 0x02)) {
-				switch(DataFromMobile.data[0]) {
-					case '1':	//打开水泵
-						Open_Pump();
-						break;
-					case '0':
-						Close_Pump();
-						break;
-					default:
-						break;
+			TimeMs = 10;	
+			Device.PWMOffLineCnt++;
+			if(Device.PWMOffLineCnt>2) {
+				Device.PWMOfflineFlag = PWM_OFFLINE;
+				if(Device.PumpStatusFlag != PUMP_STATUS_CLOSED) {
+					Device.PumpStatusFlag = PUMP_STATUS_CLOSED;
+					Close_Pump();
+					
 				}
 			}
-			Uart1.RxFlag = 0;
-		}
+		} 
 	}
 }
 
