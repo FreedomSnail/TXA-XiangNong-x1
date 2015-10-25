@@ -149,24 +149,37 @@ void USART1_IRQHandler(void)
 			case RECV_COMMAND_SET:
 				Uart1.RxDataBuf[Uart1.RxIndex] = Rev;
 				if(Uart1.RxIndex == sizeof(SDKHeader)) {
-				//if(Uart1.RxIndex == 12) {
-					if(Rev == 0x02) {
-						//USART_Out(USART1,"*");
+					Uart1.PackageStatus = RECV_COMMAND_ID;
+					#if 0
+					if(Rev == 0x00) {	//命令集-激活验证类 -机载设备==>飞控
+						Uart1.PackageStatus = RECV_COMMAND_ID;
+					} else if(Rev == 0x02) { //命令集-推送数据类 - 飞控==>机载设备
 						Uart1.PackageStatus = RECV_COMMAND_ID;
 					} else {
 						Uart1.PackageStatus = RECV_IDLE;
 					}
+					#endif
 				}
 				Uart1.RxIndex++;
 				break;
 			case RECV_COMMAND_ID:
 				Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
+				dataLen = ((unsigned int)(0x03&&Uart1.RxDataBuf[2])<<8)+(unsigned int)Uart1.RxDataBuf[1];
+				Uart1.PackageStatus = RECV_WAIT_DONE;
+
+				#if 0
+				Uart1.RxDataBuf[Uart1.RxIndex++] = Rev;
 				if(Rev == 0x02) {
 					dataLen = ((unsigned int)(0x03&&Uart1.RxDataBuf[2])<<8)+(unsigned int)Uart1.RxDataBuf[1];
 					Uart1.PackageStatus = RECV_WAIT_DONE;
 				} else {
-					Uart1.PackageStatus = RECV_IDLE;
+					//if(Uart1.RxDataBuf[Uart1.RxIndex-1] == 0x00) {
+
+					//} else {
+						Uart1.PackageStatus = RECV_IDLE;
+					//}
 				}
+				#endif
 				break;
 			case RECV_WAIT_DONE:
 				if(Uart1.RxIndex<RX_MAX_NUM) {

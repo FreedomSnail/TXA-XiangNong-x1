@@ -1000,6 +1000,9 @@ void Pro_Config_Comm_Encrypt_Key(const char *key)
 {
 	sdk_set_encrypt_key_interface(key);
 }
+#define MAKE_VERSION(a,b,c,d) (((a << 24)&0xff000000) | ((b << 16)&0x00ff0000) | ((c << 8)&0x0000ff00) | (d&0x000000ff))
+#define SDK_VERSION           (MAKE_VERSION(3,0,100,0))
+
 /************************************************************************************************
 ** Function name :			
 ** Description :
@@ -1015,11 +1018,13 @@ void DJI_Pro_Test_Setup(void)
 
 	activation_msg.app_id =1008902;
 	activation_msg.app_api_level = 2;
-	activation_msg.app_ver = 0x02030A00;
+	//activation_msg.app_ver = 50357248;
+	activation_msg.app_ver = SDK_VERSION;
 	
 	
-	memcpy(activation_msg.app_bundle_id,"1234567890123456789017", 32);
-	key = "818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9d";    
+	memcpy(activation_msg.app_bundle_id,"1234567890123456789012", 32);
+	key = "818e4fccacb5d597aa4c006a15b7b031185a49ec3f86aa50a023b00d04146a9c";   
+	       
 	Pro_Config_Comm_Encrypt_Key(key);
 	Pro_Link_Setup();
 }
@@ -1114,6 +1119,7 @@ void Pro_Receive_Interface(void)
 		Ack.length = RecHeader.length - _SDK_FULL_DATA_SIZE_MIN;
 		Ack.need_encrypt = RecHeader.enc_type;
 		
+		
 		switch(Ack.session_id)
 		{
 			case 0x02:
@@ -1133,25 +1139,44 @@ void Pro_Receive_Interface(void)
 //				}
 //				break;
 		}
+		
+		RecData.CommandSet = Uart1.RxDataBuf[12];
+		RecData.CommandId = Uart1.RxDataBuf[13];
+		RecData.dataLen = RecHeader.length - _SDK_FULL_DATA_SIZE_MIN-2;//透传数据的长度
+		if(RecData.dataLen>0) {
+			memcpy(&RecData.data , &Uart1.RxDataBuf[14],RecData.dataLen);
+		}
+		memcpy((unsigned char*)&DataFromMobile,(unsigned char*)&RecData,sizeof(RecData));
+		
 	}
 	else
 	{
 		RecData.CommandSet = Uart1.RxDataBuf[12];
 		RecData.CommandId = Uart1.RxDataBuf[13];
 		RecData.dataLen = RecHeader.length - _SDK_FULL_DATA_SIZE_MIN-2;//透传数据的长度
-		memcpy(&RecData.data , &Uart1.RxDataBuf[14],RecData.dataLen);
+		if(RecData.dataLen>0) {
+			memcpy(&RecData.data , &Uart1.RxDataBuf[14],RecData.dataLen);
+		}
+		
 		//RecData.readed = 0;  //数据为读取
 		
-		switch(RecData.CommandSet)
-		{
-			case 0x02:
-				if(RecData.CommandId==0x02) {
+		switch(RecData.CommandSet) {
+			//case 0x00://激活验证类
+			//	if(RecData.CommandId==0x01) { //激活应答(飞控至机载设备)
+			//		memcpy((unsigned char*)&DataFromMobile,(unsigned char*)&RecData,sizeof(RecData));
+			//	}
+			//	break;
+			case 0x02://推送数据类
+				if(RecData.CommandId==0x02) {	//移动设备至机载设备
 					memcpy((unsigned char*)&DataFromMobile,(unsigned char*)&RecData,sizeof(RecData));
 					//USART_Send_Buf(USART1,DataFromMobile.data,RecData.dataLen);
 					//App_Send_Data( 2, 0, MY_ACTIVATION_SET,0xFE,DataFromMobile.data,RecData.dataLen);
 					
 					
 				}
+				break;
+			default:
+				
 				break;
 		}
 	}
