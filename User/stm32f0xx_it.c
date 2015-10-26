@@ -105,10 +105,13 @@ void ADC1_COMP_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
+void SysTick_Handler(void)	// 10ms执行一次这个中断
 {
 	if(TimeMs>0) {
 		TimeMs--;
+	}
+	if( Device.LoseRemoteSignalCnt > 0) {
+		Device.LoseRemoteSignalCnt--;
 	}
 }
 

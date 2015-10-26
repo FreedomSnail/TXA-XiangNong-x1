@@ -141,19 +141,29 @@ int main(void)
 		if(Uart1.RxFlag >0 ) {
 			//USART_Out(USART1,"\r\n");
 			Pro_Receive_Interface();//一帧数据接收完成
-			if((DataFromMobile.CommandSet == 0x02)&&(DataFromMobile.CommandId == 0x02)) {
+			if((DataFromMobile.CommandSet == 0x02)&&(DataFromMobile.CommandId == 0x02)) {	//移动设备每隔500ms发一个包
+				Device.LoseRemoteSignalCnt = 70;
 				switch(DataFromMobile.data[0]) {
 					case '1':	//打开水泵
-						Open_Pump();
+						if(Device.LiquidSpeed == 0) {
+							Open_Pump();
+						}
 						break;
 					case '0':
-						Close_Pump();
+						if(Device.LiquidSpeed > 0) {
+							Close_Pump();
+						}
 						break;
 					default:
 						break;
 				}
 			}
 			Uart1.RxFlag = 0;
+		}
+		if( Device.LoseRemoteSignalCnt == 0) {
+			if(Device.LiquidSpeed > 0) {
+				Close_Pump();
+			}
 		}
 	}
 }

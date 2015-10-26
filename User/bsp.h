@@ -55,6 +55,10 @@
 #define ATOMIZER_PWM_MIN	90
 #define ATOMIZER_PWM_MAX	210
 
+typedef enum {
+	ONLINE,
+	OFFLINE
+}RemoteSignalStatus_TYPEDEF;
 
 typedef struct {
 	u16 AmpRef;			//»ù×¼µçÁ÷Öµ
@@ -68,8 +72,10 @@ typedef struct {
 	u16 AtomizerCurPWM;
 	u16 AtomizerTargetPWM;
 	u16 isDoseRunOut;
-}
-Device_TYPEDEF;
+	
+	//RemoteSignalStatus_TYPEDEF RemoteSignalStatus;		//Ò£¿ØÆ÷ÐÅºÅ×´Ì¬(Î´¶ªÊ§ºÍ¶ªÊ§)
+	u16 LoseRemoteSignalCnt;	//¶ªÊ§Ò£¿ØÆ÷ÐÅºÅ¼ÆÊý
+}Device_TYPEDEF;
 
 extern Device_TYPEDEF Device;
 
